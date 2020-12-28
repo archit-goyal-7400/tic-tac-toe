@@ -12,7 +12,6 @@ class Board extends React.Component {
   }
 
   render() {
-    console.log(this.props.squares);
     return (
       <div>
         <div className="board-row">

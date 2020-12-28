@@ -11,22 +11,25 @@ class App extends React.Component {
         },
       ],
       isNextX: true,
+      currentIndex: 0,
     };
   }
   stateHandler = (i) => {
     if (
-      !this.state.history[this.state.history.length - 1].squares[i] &&
-      !this.winnerHandler(
-        this.state.history[this.state.history.length - 1].squares
-      )
+      !this.state.history[this.state.currentIndex].squares[i] &&
+      !this.winnerHandler(this.state.history[this.state.currentIndex].squares)
     ) {
-      const history = [...this.state.history];
+      const history = this.state.history.slice(0, this.state.currentIndex + 1);
       const square = this.state.history[
-        this.state.history.length - 1
+        this.state.currentIndex
       ].squares.slice();
       square[i] = this.state.isNextX ? "X" : "O";
       history.push({ squares: square });
-      this.setState({ history: history, isNextX: !this.state.isNextX });
+      this.setState({
+        history: history,
+        isNextX: history.length % 2,
+        currentIndex: history.length - 1,
+      });
     }
   };
   winnerHandler = (squares) => {
@@ -52,8 +55,13 @@ class App extends React.Component {
     }
     return null;
   };
+  jumpTo = (index) => {
+    this.setState({
+      currentIndex: index,
+      isNextX: index % 2 === 0,
+    });
+  };
   render() {
-    console.log(this.state.history);
     const winner = this.winnerHandler(
       this.state.history[this.state.history.length - 1].squares
     );
@@ -64,7 +72,9 @@ class App extends React.Component {
     const moves = this.state.history.map((sq, i) => {
       return (
         <li key={i}>
-          <button>{i ? "Move to #" + i : "Move to start"}</button>
+          <button onClick={() => this.jumpTo(i)}>
+            {i ? "Move to #" + i : "Move to start"}
+          </button>
         </li>
       );
     });
@@ -72,7 +82,7 @@ class App extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board
-            squares={this.state.history[this.state.history.length - 1].squares}
+            squares={this.state.history[this.state.currentIndex].squares}
             isNextX={this.state.isNextX}
             stateHandler={(i) => this.stateHandler(i)}
           />
